@@ -1,11 +1,10 @@
 #include "Window.h"
 
-	Window::Window(const char* name, int width, int height)
+Window::Window(const char* name, int width, int height) :
+	m_Width(width),
+	m_Height(height),
+	m_Name(name)
 	{
-		m_Width = width;
-		m_Height = height;
-		m_Name = name;
-
 		if (!init()) {
 			glfwTerminate();
 		}
@@ -13,30 +12,43 @@
 
 	bool Window::closed()
 	{
-		return glfwWindowShouldClose(m_Window);
+		return glfwWindowShouldClose(this->m_Window);
 	}
 
 	bool Window::init()
 	{
+
 		if (!glfwInit())
 		{
 			std::cout << "Failed to initialise GLFW!" << std::endl;
 			return false;
 		}
 
-		m_Window = glfwCreateWindow(m_Width, m_Height, m_Name, NULL, NULL);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-		if (!m_Window)
+		this->m_Window = glfwCreateWindow(this->m_Width, this->m_Height, this->m_Name, NULL, NULL);
+
+		if (!this->m_Window)
 		{
 			glfwTerminate();
 			std::cout << "Failed to initialise GLFW window!" << std::endl;
 			return false;
 		}
 
-		glfwMakeContextCurrent(m_Window);
-		glfwSetWindowUserPointer(m_Window, this);
+		glfwMakeContextCurrent(this->m_Window);
 
-		glViewport(0, 0, m_Width, m_Height);
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			std::cout << "Failed to initialize GLAD" << std::endl;
+			return false;
+		}
+
+		glfwSetWindowUserPointer(this->m_Window, this);
+
+		glViewport(0, 0, this->m_Width, this->m_Height);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		return true;
 	}
@@ -50,6 +62,6 @@
 	void Window::update()
 	{
 		glfwPollEvents();
-		glfwGetFramebufferSize(m_Window, &m_Width, &m_Height);
-		glfwSwapBuffers(m_Window);
+		glfwGetFramebufferSize(this->m_Window, &m_Width, &m_Height);
+		glfwSwapBuffers(this->m_Window);
 	}
